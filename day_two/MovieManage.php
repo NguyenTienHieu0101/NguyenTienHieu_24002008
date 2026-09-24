@@ -144,6 +144,15 @@ function main(){
     echo "<br>";
     display($movies);
 
+    $movies[2]->bookTicket(40);
+    echo "<br>";
+    display($movies);
+
+    // hủy vé
+    $movies[2]->cancelTicket(10);
+    echo "<br>";
+    display($movies);
+
     // hàm tính tổng doanh thư tất cả các phim
     $total = getTotalRevenue($movies);
     echo "Tổng doanh thu :" . $total ." đ<br>";
@@ -183,7 +192,21 @@ Mã phim: 01110 | Tên phim: Anh nhớ em | Giá vé: 80000 | Tổng số ghế:
 Mã phim: 01330 | Tên phim: Chia tay | Giá vé: 100000 | Tổng số ghế: 50 | Số ghế còn lại: 50 | Số vé đã bán: 0 | Doanh thu: 0
 Mã phim: 04000 | Tên phim: Chỉ là quá khứ | Giá vé: 55000 | Tổng số ghế: 70 | Số ghế còn lại: 70 | Số vé đã bán: 0 | Doanh thu: 0
 Mã phim: 02432 | Tên phim: Nhớ em | Giá vé: 90000 | Tổng số ghế: 75 | Số ghế còn lại: 75 | Số vé đã bán: 0 | Doanh thu: 0
-Tổng doanh thu :1000000 đ
+Đã đặt 40 vé.
+
+Mã phim: 01010 | Tên phim: Anh yêu em | Giá vé: 50000 | Tổng số ghế: 70 | Số ghế còn lại: 50 | Số vé đã bán: 20 | Doanh thu: 1000000
+Mã phim: 01110 | Tên phim: Anh nhớ em | Giá vé: 80000 | Tổng số ghế: 60 | Số ghế còn lại: 60 | Số vé đã bán: 0 | Doanh thu: 0
+Mã phim: 01330 | Tên phim: Chia tay | Giá vé: 100000 | Tổng số ghế: 50 | Số ghế còn lại: 10 | Số vé đã bán: 40 | Doanh thu: 4000000
+Mã phim: 04000 | Tên phim: Chỉ là quá khứ | Giá vé: 55000 | Tổng số ghế: 70 | Số ghế còn lại: 70 | Số vé đã bán: 0 | Doanh thu: 0
+Mã phim: 02432 | Tên phim: Nhớ em | Giá vé: 90000 | Tổng số ghế: 75 | Số ghế còn lại: 75 | Số vé đã bán: 0 | Doanh thu: 0
+Đã hủy 10 vé.
+
+Mã phim: 01010 | Tên phim: Anh yêu em | Giá vé: 50000 | Tổng số ghế: 70 | Số ghế còn lại: 50 | Số vé đã bán: 20 | Doanh thu: 1000000
+Mã phim: 01110 | Tên phim: Anh nhớ em | Giá vé: 80000 | Tổng số ghế: 60 | Số ghế còn lại: 60 | Số vé đã bán: 0 | Doanh thu: 0
+Mã phim: 01330 | Tên phim: Chia tay | Giá vé: 100000 | Tổng số ghế: 50 | Số ghế còn lại: 20 | Số vé đã bán: 30 | Doanh thu: 3000000
+Mã phim: 04000 | Tên phim: Chỉ là quá khứ | Giá vé: 55000 | Tổng số ghế: 70 | Số ghế còn lại: 70 | Số vé đã bán: 0 | Doanh thu: 0
+Mã phim: 02432 | Tên phim: Nhớ em | Giá vé: 90000 | Tổng số ghế: 75 | Số ghế còn lại: 75 | Số vé đã bán: 0 | Doanh thu: 0
+Tổng doanh thu :4000000 đ
 
 Phim bán chạy nhất:
-Mã phim: 01010 | Tên phim: Anh yêu em | Giá vé: 50000 | Tổng số ghế: 70 | Số ghế còn lại: 50 | Số vé đã bán: 20 | Doanh thu: 1000000 -->
+Mã phim: 01330 | Tên phim: Chia tay | Giá vé: 100000 | Tổng số ghế: 50 | Số ghế còn lại: 20 | Số vé đã bán: 30 | Doanh thu: 3000000 -->
