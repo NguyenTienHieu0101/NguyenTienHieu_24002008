@@ -31,7 +31,7 @@
             $ind = $this->findByName($item->name);
             if ($ind != 0){
                 echo "Hàng đã có, thêm số lượng <br>";
-                $this->items[$ind] += $item->quantity;
+                $this->items[$ind]->quantity += $item->quantity;
                 return;
             }
             $this->items[] = $item;
@@ -40,7 +40,7 @@
         public function removeItem(string $name){
             $ind = $this->findByName($name);
             if ($ind != -1){
-                unset($this->items, $i);
+                array_splice($this->items, $ind, 1);
                 return;
             }
             echo "Không có ". $name . " trong giỏ hàng. OK chưa! <br>";
@@ -101,6 +101,14 @@
         $shoppingCart->displayCart();
         echo "Xóa Giềng <br>";
         $shoppingCart->removeItem("Giềng");
+        $shoppingCart->displayCart();
+
+        echo "Thêm thịt chó: <br>";
+        $shoppingCart->addItem(new CartItem("Thịt chó", 150000.0, 1));
+        $shoppingCart->displayCart();
+
+        echo "Mua Giềng: <br>";
+        $shoppingCart->addItem(new CartItem("Giềng", 7000, 3));
        
         $shoppingCart->displayCart();
     }
@@ -110,6 +118,7 @@
 ?>
 
 <!-- Chương trình PHP bắt đầu chạy từ đây!
+Giỏ hàng rỗng!
 Tên: Thịt chó | Đơn giá: 150000 | Số lượng: 3 | Thành tiền: 450000đ
 Tên: Mắm tôm | Đơn giá: 25000 | Số lượng: 2 | Thành tiền: 50000đ
 Tên: Lá mơ | Đơn giá: 10000 | Số lượng: 1 | Thành tiền: 10000đ
@@ -119,4 +128,16 @@ Xóa Giềng
 Tên: Thịt chó | Đơn giá: 150000 | Số lượng: 3 | Thành tiền: 450000đ
 Tên: Mắm tôm | Đơn giá: 25000 | Số lượng: 2 | Thành tiền: 50000đ
 Tên: Lá mơ | Đơn giá: 10000 | Số lượng: 1 | Thành tiền: 10000đ
-Tổng tiền: 510000đ -->
+Tổng tiền: 510000đ
+Thêm thịt chó:
+Hàng đã có, thêm số lượng
+Tên: Thịt chó | Đơn giá: 150000 | Số lượng: 4 | Thành tiền: 600000đ
+Tên: Mắm tôm | Đơn giá: 25000 | Số lượng: 2 | Thành tiền: 50000đ
+Tên: Lá mơ | Đơn giá: 10000 | Số lượng: 1 | Thành tiền: 10000đ
+Tổng tiền: 660000đ
+Mua Giềng:
+Tên: Thịt chó | Đơn giá: 150000 | Số lượng: 4 | Thành tiền: 600000đ
+Tên: Mắm tôm | Đơn giá: 25000 | Số lượng: 2 | Thành tiền: 50000đ
+Tên: Lá mơ | Đơn giá: 10000 | Số lượng: 1 | Thành tiền: 10000đ
+Tên: Giềng | Đơn giá: 7000 | Số lượng: 3 | Thành tiền: 21000đ
+Tổng tiền: 681000đ -->
