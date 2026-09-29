@@ -28,24 +28,38 @@
             if ($item == NULL){
                 return;
             }
+            $ind = $this->findByName($item->name);
+            if ($ind != 0){
+                echo "Hàng đã có, thêm số lượng <br>";
+                $this->items[$ind] += $item->quantity;
+                return;
+            }
             $this->items[] = $item;
         }
         // hàm xóa sản phẩm
         public function removeItem(string $name){
-            if (strlen($name) == 0 || empty($name)){
+            $ind = $this->findByName($name);
+            if ($ind != -1){
+                unset($this->items, $i);
                 return;
+            }
+            echo "Không có ". $name . " trong giỏ hàng. OK chưa! <br>";
+        }
+        // tìm bằng tên
+        public function findByName(string $name){
+            if (strlen($name) == 0 || empty($name)){
+                return -1;
             }
             if (count($this->items) == 0){
                 echo "Giỏ hàng rỗng! <br>";
-                return;
+                return -1;
             }
             for ($i = 0; $i < count($this->items); $i++){
                 if ($this->items[$i]->name == $name){
-                    unset($this->items[$i]);
-                    return;
+                    return $i;
                 }
             }
-            echo "Không có ". $name . " trong giỏ hàng. OK chưa! <br>";
+            return -1;
         }
         // hàm tính tổng tiền của toàn bộ sản phẩm
         public function calculateTotal(){
