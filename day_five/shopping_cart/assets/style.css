@@ -1,0 +1,48 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f4f6f8;
+    color: #222;
+}
+.site-header {
+    background: #2457a7;
+    color: white;
+    padding: 18px 6%;
+}
+.site-header h1 { margin: 0 0 10px; }
+.site-header a { color: white; margin-left: 8px; }
+.container {
+    max-width: 950px;
+    margin: 25px auto;
+    padding: 24px;
+    background: white;
+    border-radius: 8px;
+}
+table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+th { background: #edf2f8; }
+label { display: block; margin-top: 14px; }
+input {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 480px;
+    padding: 9px;
+    margin-top: 5px;
+}
+button, .button {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 9px 14px;
+    background: #2457a7;
+    color: white;
+    border: 0;
+    border-radius: 4px;
+    text-decoration: none;
+    cursor: pointer;
+}
+.danger { background: #b3261e; }
+.message { padding: 10px; background: #eef7ee; border: 1px solid #b8dcb8; }
+.error { padding: 10px; background: #fff0f0; border: 1px solid #e3aaaa; }
+.site-footer { text-align: center; padding: 20px; color: #666; }
+.actions a { margin-right: 8px; }
