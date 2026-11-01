@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bài 2 - Đặt vé xem phim</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    
+    input[type="text"], input[type="number"], select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font: inherit;
+    }
+    
+  </style>
+</head>
+<body>
+  <main id="app" >
+    <h1>Đặt vé xem phim</h1>
+
+    <form novalidate @submit.prevent="bookTicket">
+      <label>
+        Họ tên khách hàng
+        <input v-model.trim="customerName" type="text" autocomplete="name" placeholder="Nhập họ tên">
+      </label>
+      <p v-if="!customerName" >Vui lòng nhập họ tên khách hàng.</p>
+
+      <label>
+        Suất chiếu
+        <select v-model="showtime">
+          <option disabled value="">Chọn suất chiếu</option>
+          <option v-for="time in showtimes" :key="time" :value="time">{{ time }}</option>
+        </select>
+      </label>
+
+      <fieldset>
+        <legend>Loại vé</legend>
+        <label>
+          <input v-model="ticketType" type="radio" value="regular">
+          Vé thường - 70.000 đồng
+        </label>
+        <label>
+          <input v-model="ticketType" type="radio" value="vip">
+          Vé VIP - 100.000 đồng
+        </label>
+      </fieldset>
+
+      <div>
+        <label for="quantity">Số lượng vé (1-10)</label>
+        <div >
+          <button class="secondary" type="button" aria-label="Giảm số lượng vé" @click="changeQuantity(-1)">−</button>
+          <input
+            id="quantity"
+            v-model.number="quantity"
+            type="number"
+            min="1"
+            max="10"
+            step="1"
+          >
+          <button  type="button" aria-label="Tăng số lượng vé" @click="changeQuantity(1)">+</button>
+        </div>
+        <p v-if="!validQuantity" class="error">Số lượng phải là số nguyên từ 1 đến 10.</p>
+      </div>
+
+      <label >
+        <input v-model="combo" type="checkbox">
+        Thêm combo bắp nước (+45.000 đồng/đơn)
+      </label>
+
+      <p >
+        Tổng tiền: {{ validQuantity ? formatCurrency(total) : '—' }}
+      </p>
+      <button type="submit" :disabled="!canBook">Đặt vé</button>
+    </form>
+
+    <section v-if="booking"  aria-live="polite">
+      <h2>Đặt vé thành công!</h2>
+      <p><strong>Khách hàng:</strong> {{ booking.customerName }}</p>
+      <p><strong>Suất chiếu:</strong> {{ booking.showtime }}</p>
+      <p><strong>Loại vé:</strong> {{ booking.ticketType === 'vip' ? 'VIP' : 'Thường' }}</p>
+      <p><strong>Số lượng:</strong> {{ booking.quantity }} vé</p>
+      <p><strong>Combo bắp nước:</strong> {{ booking.combo ? 'Có' : 'Không' }}</p>
+      <p><strong>Tổng tiền:</strong> {{ formatCurrency(booking.total) }}</p>
+    </section>
+  </main>
+
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          customerName: '',
+          showtimes: ['09:00', '13:30', '18:00'],
+          showtime: '',
+          ticketType: 'regular',
+          quantity: 1,
+          combo: false,
+          booking: null
+        };
+      },
+      computed: {
+        validQuantity() {
+          return Number.isInteger(this.quantity) && this.quantity >= 1 && this.quantity <= 10;
+        },
+        ticketPrice() {
+          return this.ticketType === 'vip' ? 100000 : 70000;
+        },
+        total() {
+          if (!this.validQuantity) return 0;
+          return this.ticketPrice * this.quantity + (this.combo ? 45000 : 0);
+        },
+        canBook() {
+          return this.customerName.length > 0 && Boolean(this.showtime) && this.validQuantity;
+        }
+      },
+      methods: {
+        changeQuantity(amount) {
+          const current = Number.isInteger(this.quantity) ? this.quantity : 1;
+          this.quantity = Math.min(10, Math.max(1, current + amount));
+        },
+        formatCurrency(amount) {
+          return new Intl.NumberFormat('vi-VN').format(amount) + ' đồng';
+        },
+        bookTicket() {
+          if (!this.canBook) return;
+          this.booking = {
+            customerName: this.customerName,
+            showtime: this.showtime,
+            ticketType: this.ticketType,
+            quantity: this.quantity,
+            combo: this.combo,
+            total: this.total
+          };
+        }
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bài 3 - Quản lý công việc cá nhân</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  
+</head>
+<body>
+  <main id="app" >
+    <h1>Quản lý công việc cá nhân</h1>
+    <section >
+      <form  @submit.prevent="addTask">
+        <input
+          v-model="newTaskName"
+          type="text"
+          aria-label="Tên công việc mới"
+          placeholder="Bạn cần làm gì?"
+        >
+        <button type="submit">Thêm</button>
+      </form>
+
+      <nav aria-label="Lọc công việc">
+        <button
+          v-for="option in filterOptions"
+          :key="option.value"
+          type="button"
+          :class="{ active: filter === option.value }"
+          :aria-pressed="filter === option.value"
+          @click="filter = option.value"
+        >{{ option.label }}</button>
+      </nav>
+
+      <ul v-if="filteredTasks.length" >
+        <li v-for="task in filteredTasks" :key="task.id" >
+          <input
+            v-model="task.completed"
+            type="checkbox"
+            :aria-label="'Đánh dấu hoàn thành: ' + task.name"
+          >
+          <span :class="{ completed: task.completed }">{{ task.name }}</span>
+          <button type="button" :aria-label="'Xóa công việc: ' + task.name" @click="removeTask(task.id)">
+            Xóa
+          </button>
+        </li>
+      </ul>
+      <p v-else-if="tasks.length === 0" >Chưa có công việc nào. Hãy thêm công việc mới!</p>
+      <p v-else >Không có công việc nào trong mục này.</p>
+
+      <div >
+        <p >
+          Tổng số: {{ totalTasks }} · Chưa hoàn thành: {{ remainingTasks }}
+        </p>
+        <button  type="button" :disabled="completedTasks === 0" @click="clearCompleted">
+          Xóa các việc đã hoàn thành
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          newTaskName: '',
+          filter: 'all',
+          nextId: 3,
+          tasks: [
+            { id: 1, name: 'Ôn tập Vue.js', completed: false },
+            { id: 2, name: 'Hoàn thành bài thực hành', completed: true }
+          ],
+          filterOptions: [
+            { value: 'all', label: 'Tất cả' },
+            { value: 'active', label: 'Chưa hoàn thành' },
+            { value: 'completed', label: 'Đã hoàn thành' }
+          ]
+        };
+      },
+      computed: {
+        filteredTasks() {
+          if (this.filter === 'active') return this.tasks.filter(task => !task.completed);
+          if (this.filter === 'completed') return this.tasks.filter(task => task.completed);
+          return this.tasks;
+        },
+        totalTasks() {
+          return this.tasks.length;
+        },
+        completedTasks() {
+          return this.tasks.filter(task => task.completed).length;
+        },
+        remainingTasks() {
+          return this.totalTasks - this.completedTasks;
+        }
+      },
+      methods: {
+        addTask() {
+          const name = this.newTaskName.trim();
+          if (!name) return;
+          this.tasks.push({ id: this.nextId++, name, completed: false });
+          this.newTaskName = '';
+        },
+        removeTask(id) {
+          this.tasks = this.tasks.filter(task => task.id !== id);
+        },
+        clearCompleted() {
+          this.tasks = this.tasks.filter(task => !task.completed);
+        }
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>

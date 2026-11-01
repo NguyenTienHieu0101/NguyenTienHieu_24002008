@@ -11,14 +11,13 @@
     }
     function calculateTotal(array $products){
         if (count($products) == 0) return 0;
-        $maxScore = 0;
-        $result = 0;
+        $total = 0;
         foreach ($products as $st){
-            $result += $st["price"];
+            $total += $st["price"];
         }
-        return $result;
+        return $total;
     }
-    function displayStudent(array $products){
+    function displayProducts(array $products){
         if (count($products) == 0) return;
         foreach ($products as $st){
             echo "name : " . $st["name"] . " | giá : " . $st["price"] .  "đ <br>";
@@ -35,13 +34,11 @@ $products = [
 ];
 
 // danh sách sản phẩm
-displayStudent($products);
-
+displayProducts($products);
 
 // TÍNH TỔNG
 $sum = calculateTotal($products);
 echo "Tổng là: " . $sum ."đ <br>";
-
 
 // tìm giá max
 $maxPrice = findMaxPrice($products);
