@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bài 1 - Quản lý sản phẩm</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Arial, sans-serif;
+      color: #1e293b;
+      background: #f1f5f9;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 32px 16px;
+    }
+
+    main {
+      width: min(1100px, 100%);
+      margin: 0 auto;
+    }
+
+    h1, h2, p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+      color: #0f172a;
+    }
+
+    .subtitle {
+      margin-bottom: 24px;
+      color: #64748b;
+    }
+
+    .panel {
+      margin-bottom: 20px;
+      padding: 22px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 4px 14px rgb(15 23 42 / 5%);
+    }
+
+    .panel h2 {
+      margin-bottom: 16px;
+      font-size: 1.15rem;
+    }
+
+    .form-grid, .filter-grid, .summary-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .form-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      align-items: end;
+    }
+
+    .filter-grid {
+      grid-template-columns: 2fr 1fr 1fr;
+      align-items: end;
+    }
+
+    .summary-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    input, select, button {
+      font: inherit;
+    }
+
+    input, select {
+      width: 100%;
+      min-height: 42px;
+      padding: 9px 11px;
+      border: 1px solid #cbd5e1;
+      border-radius: 7px;
+      background: #fff;
+    }
+
+    input:focus, select:focus {
+      border-color: #2563eb;
+      outline: 3px solid rgb(37 99 235 / 15%);
+    }
+
+    button {
+      min-height: 42px;
+      padding: 9px 16px;
+      border: 0;
+      border-radius: 7px;
+      color: #fff;
+      background: #2563eb;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    .delete-button {
+      min-height: 34px;
+      padding: 6px 10px;
+      background: #dc2626;
+      font-size: 0.85rem;
+    }
+
+    .delete-button:hover {
+      background: #b91c1c;
+    }
+
+    .form-error, .search-notice {
+      margin: 12px 0 0;
+      color: #b91c1c;
+    }
+
+    .search-notice {
+      color: #9a3412;
+    }
+
+    .summary-card {
+      padding: 18px 20px;
+      border-radius: 10px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+    }
+
+    .summary-label {
+      display: block;
+      margin-bottom: 8px;
+      color: #64748b;
+      font-size: 0.9rem;
+    }
+
+    .summary-value {
+      color: #0f172a;
+      font-size: 1.35rem;
+      font-weight: 700;
+    }
+
+    .status-line {
+      margin: 0 0 14px;
+      color: #64748b;
+      font-size: 0.9rem;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 13px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      white-space: nowrap;
+    }
+
+    th {
+      color: #475569;
+      background: #f8fafc;
+      font-size: 0.85rem;
+    }
+
+    .stock-badge {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .in-stock {
+      color: #166534;
+      background: #dcfce7;
+    }
+
+    .out-of-stock {
+      color: #991b1b;
+      background: #fee2e2;
+    }
+
+    .empty-state {
+      padding: 28px 12px;
+      color: #64748b;
+      text-align: center;
+    }
+
+    @media (max-width: 760px) {
+      .form-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .filter-grid, .summary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 22px 12px;
+      }
+
+      .panel {
+        padding: 16px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main id="app">
+    <h1>Quản lý sản phẩm</h1>
+    <p class="subtitle">Tìm kiếm, lọc và theo dõi tồn kho sản phẩm.</p>
+
+    <section class="panel" aria-labelledby="add-product-heading">
+      <h2 id="add-product-heading">Thêm sản phẩm mới</h2>
+      <form class="form-grid" @submit.prevent="addProduct">
+        <div>
+          <label for="product-name">Tên sản phẩm</label>
+          <input
+            id="product-name"
+            v-model.trim="productForm.name"
+            type="text"
+            placeholder="Nhập tên sản phẩm"
+          >
+        </div>
+        <div>
+          <label for="product-price">Giá (₫)</label>
+          <input
+            id="product-price"
+            v-model.number="productForm.price"
+            type="number"
+            min="0"
+            step="any"
+            placeholder="Ví dụ: 150000"
+          >
+        </div>
+        <div>
+          <label for="product-category">Danh mục</label>
+          <select id="product-category" v-model="productForm.category">
+            <option v-for="category in categories" :key="category" :value="category">
+              {{ category }}
+            </option>
+          </select>
+        </div>
+        <div>
+          <label for="product-stock">Số lượng tồn</label>
+          <input
+            id="product-stock"
+            v-model.number="productForm.stock"
+            type="number"
+            min="0"
+            step="1"
+            placeholder="Ví dụ: 10"
+          >
+        </div>
+        <div>
+          <button type="submit">Thêm sản phẩm</button>
+        </div>
+      </form>
+      <p v-if="formError" class="form-error" role="alert">{{ formError }}</p>
+    </section>
+
+    <section class="panel" aria-labelledby="filter-heading">
+      <h2 id="filter-heading">Tìm kiếm và lọc sản phẩm</h2>
+      <div class="filter-grid">
+        <div>
+          <label for="search">Tìm theo tên</label>
+          <input id="search" v-model.trim="keyword" type="search" placeholder="Nhập tên sản phẩm">
+        </div>
+        <div>
+          <label for="category-filter">Danh mục</label>
+          <select id="category-filter" v-model="selectedCategory">
+            <option value="">Tất cả danh mục</option>
+            <option v-for="category in categories" :key="category" :value="category">
+              {{ category }}
+            </option>
+          </select>
+        </div>
+        <div>
+          <label for="sort-order">Sắp xếp theo giá</label>
+          <select id="sort-order" v-model="sortOrder">
+            <option value="">Mặc định</option>
+            <option value="asc">Tăng dần</option>
+            <option value="desc">Giảm dần</option>
+          </select>
+        </div>
+      </div>
+      <p v-if="searchNotice" class="search-notice" role="status">{{ searchNotice }}</p>
+    </section>
+
+    <section class="summary-grid" aria-label="Thống kê danh sách">
+      <div class="summary-card">
+        <span class="summary-label">Số sản phẩm đang hiển thị</span>
+        <span class="summary-value">{{ visibleProducts.length }} / {{ products.length }}</span>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Tổng giá trị tồn kho đang hiển thị</span>
+        <span class="summary-value">{{ formatCurrency(visibleInventoryValue) }}</span>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Trạng thái trang</span>
+        <span class="summary-value" aria-live="polite">{{ pageStatus }}</span>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="product-list-heading">
+      <h2 id="product-list-heading">Danh sách sản phẩm</h2>
+      <p class="status-line">Danh sách và thống kê được cập nhật theo các điều kiện hiện tại.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Tên sản phẩm</th>
+              <th scope="col">Giá</th>
+              <th scope="col">Danh mục</th>
+              <th scope="col">Tồn kho</th>
+              <th scope="col">Trạng thái</th>
+              <th scope="col">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="product in visibleProducts" :key="product.id">
+              <td>{{ product.id }}</td>
+              <td>{{ product.name }}</td>
+              <td>{{ formatCurrency(product.price) }}</td>
+              <td>{{ product.category }}</td>
+              <td>{{ product.stock }}</td>
+              <td>
+                <span
+                  class="stock-badge"
+                  :class="product.stock > 0 ? 'in-stock' : 'out-of-stock'"
+                >
+                  {{ product.stock > 0 ? 'Còn hàng' : 'Hết hàng' }}
+                </span>
+              </td>
+              <td>
+                <button class="delete-button" type="button" @click="deleteProduct(product)">
+                  Xóa
+                </button>
+              </td>
+            </tr>
+            <tr v-if="visibleProducts.length === 0">
+              <td class="empty-state" colspan="7">Không tìm thấy sản phẩm phù hợp.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          categories: ['Điện tử', 'Đồ gia dụng', 'Văn phòng phẩm'],
+          products: [
+            { id: 1, name: 'Tai nghe không dây', price: 850000, category: 'Điện tử', stock: 12 },
+            { id: 2, name: 'Chuột máy tính', price: 320000, category: 'Điện tử', stock: 0 },
+            { id: 3, name: 'Bình giữ nhiệt', price: 250000, category: 'Đồ gia dụng', stock: 8 },
+            { id: 4, name: 'Đèn bàn LED', price: 420000, category: 'Đồ gia dụng', stock: 5 },
+            { id: 5, name: 'Sổ tay', price: 45000, category: 'Văn phòng phẩm', stock: 30 },
+            { id: 6, name: 'Bút máy', price: 120000, category: 'Văn phòng phẩm', stock: 0 }
+          ],
+          productForm: {
+            name: '',
+            price: '',
+            category: 'Điện tử',
+            stock: ''
+          },
+          keyword: '',
+          selectedCategory: '',
+          sortOrder: '',
+          searchNotice: '',
+          formError: '',
+          pageStatus: 'Đang tải...'
+        };
+      },
+      computed: {
+        visibleProducts() {
+          const normalizedKeyword = this.keyword.toLocaleLowerCase('vi');
+          const matchingProducts = this.products.filter((product) => {
+            const matchesName = product.name.toLocaleLowerCase('vi').includes(normalizedKeyword);
+            const matchesCategory = !this.selectedCategory
+              || product.category === this.selectedCategory;
+            return matchesName && matchesCategory;
+          });
+
+          if (!this.sortOrder) return matchingProducts;
+
+          return [...matchingProducts].sort((first, second) => {
+            const priceDifference = first.price - second.price;
+            return this.sortOrder === 'asc' ? priceDifference : -priceDifference;
+          });
+        },
+        visibleInventoryValue() {
+          return this.visibleProducts.reduce(
+            (total, product) => total + product.price * product.stock,
+            0
+          );
+        }
+      },
+      watch: {
+        keyword(newKeyword) {
+          if (newKeyword.length === 1) {
+            this.searchNotice = 'Vui lòng nhập thêm ít nhất một ký tự để tìm kiếm chính xác hơn.';
+          } else {
+            this.searchNotice = '';
+          }
+        }
+      },
+      mounted() {
+        this.pageStatus = 'Sẵn sàng';
+      },
+      methods: {
+        formatCurrency(amount) {
+          return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+            maximumFractionDigits: 0
+          }).format(amount);
+        },
+        addProduct() {
+          const name = this.productForm.name.trim();
+          const price = this.productForm.price;
+          const stock = this.productForm.stock;
+
+          if (!name) {
+            this.formError = 'Tên sản phẩm không được để trống.';
+            return;
+          }
+          if (!Number.isFinite(price) || price <= 0) {
+            this.formError = 'Giá sản phẩm phải là số lớn hơn 0.';
+            return;
+          }
+          if (!Number.isInteger(stock) || stock < 0) {
+            this.formError = 'Số lượng tồn phải là số nguyên không âm.';
+            return;
+          }
+
+          const nextId = this.products.reduce(
+            (maximumId, product) => Math.max(maximumId, product.id),
+            0
+          ) + 1;
+          this.products.push({
+            id: nextId,
+            name,
+            price,
+            category: this.productForm.category,
+            stock
+          });
+          this.productForm = {
+            name: '',
+            price: '',
+            category: this.categories[0],
+            stock: ''
+          };
+          this.formError = '';
+        },
+        deleteProduct(product) {
+          if (!window.confirm(`Bạn có chắc muốn xóa sản phẩm "${product.name}" không?`)) {
+            return;
+          }
+          this.products = this.products.filter((item) => item.id !== product.id);
+        }
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>

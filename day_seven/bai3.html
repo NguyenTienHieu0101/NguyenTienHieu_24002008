@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bài 3 - Giỏ hàng với component</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Arial, sans-serif;
+      color: #1e293b;
+      background: #f1f5f9;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 32px 16px;
+    }
+
+    main {
+      width: min(850px, 100%);
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      color: #0f172a;
+    }
+
+    .intro {
+      margin: 0 0 24px;
+      color: #64748b;
+    }
+
+    .cart {
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 4px 14px rgb(15 23 42 / 5%);
+    }
+
+    .cart-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto auto;
+      gap: 18px;
+      align-items: center;
+      padding: 18px 20px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .item-name {
+      margin: 0 0 5px;
+      color: #0f172a;
+      font-size: 1rem;
+    }
+
+    .unit-price, .line-total {
+      color: #475569;
+      font-size: 0.9rem;
+    }
+
+    .quantity-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .quantity {
+      min-width: 24px;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    button {
+      min-height: 38px;
+      padding: 7px 11px;
+      border: 0;
+      border-radius: 7px;
+      color: #fff;
+      background: #2563eb;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover:not(:disabled) {
+      background: #1d4ed8;
+    }
+
+    button:disabled {
+      color: #64748b;
+      background: #e2e8f0;
+      cursor: not-allowed;
+    }
+
+    .remove-button {
+      color: #b91c1c;
+      background: #fee2e2;
+    }
+
+    .remove-button:hover:not(:disabled) {
+      background: #fecaca;
+    }
+
+    .empty-state {
+      padding: 32px 20px;
+      color: #64748b;
+      text-align: center;
+    }
+
+    .cart-summary {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px;
+      background: #f8fafc;
+    }
+
+    .summary-label {
+      color: #475569;
+    }
+
+    .summary-value {
+      color: #0f172a;
+      font-weight: 700;
+    }
+
+    @media (max-width: 620px) {
+      body {
+        padding: 22px 12px;
+      }
+
+      .cart-row {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 12px;
+      }
+
+      .cart-row > :nth-child(3) {
+        grid-column: 1;
+      }
+
+      .cart-row > :nth-child(4) {
+        grid-column: 2;
+        grid-row: 2;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main id="app">
+    <h1>Giỏ hàng</h1>
+    <p class="intro">Điều chỉnh số lượng từng sản phẩm hoặc xóa sản phẩm khỏi giỏ.</p>
+
+    <section class="cart" aria-label="Các sản phẩm trong giỏ hàng">
+      <dong-gio-hang
+        v-for="item in cartItems"
+        :key="item.id"
+        :id="item.id"
+        :ten="item.name"
+        :don-gia="item.price"
+        :so-luong="item.quantity"
+        @doi-so-luong="updateQuantity"
+        @yeu-cau-xoa="removeItem"
+      ></dong-gio-hang>
+
+      <p v-if="cartItems.length === 0" class="empty-state">Giỏ hàng trống</p>
+
+      <footer v-else class="cart-summary" aria-live="polite">
+        <div>
+          <span class="summary-label">Tổng số lượng: </span>
+          <span class="summary-value">{{ totalQuantity }}</span>
+        </div>
+        <div>
+          <span class="summary-label">Tổng tiền: </span>
+          <span class="summary-value">{{ formatCurrency(totalPrice) }}</span>
+        </div>
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    const { createApp } = Vue;
+
+    const DongGioHang = {
+      props: {
+        id: {
+          type: Number,
+          required: true
+        },
+        ten: {
+          type: String,
+          required: true
+        },
+        donGia: {
+          type: Number,
+          required: true
+        },
+        soLuong: {
+          type: Number,
+          required: true,
+          validator(value) {
+            return Number.isInteger(value) && value >= 1 && value <= 99;
+          }
+        }
+      },
+      emits: ['doi-so-luong', 'yeu-cau-xoa'],
+      computed: {
+        thanhTien() {
+          return this.donGia * this.soLuong;
+        }
+      },
+      methods: {
+        changeQuantity(amount) {
+          const newQuantity = this.soLuong + amount;
+          if (!Number.isInteger(newQuantity) || newQuantity < 1 || newQuantity > 99) {
+            return;
+          }
+          this.$emit('doi-so-luong', {
+            id: this.id,
+            soLuongMoi: newQuantity
+          });
+        },
+        requestRemove() {
+          this.$emit('yeu-cau-xoa', this.id);
+        },
+        formatCurrency(amount) {
+          return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+            maximumFractionDigits: 0
+          }).format(amount);
+        }
+      },
+      template: `
+        <article class="cart-row">
+          <div>
+            <h2 class="item-name">{{ ten }}</h2>
+            <span class="unit-price">Đơn giá: {{ formatCurrency(donGia) }}</span>
+          </div>
+          <div class="quantity-control" :aria-label="'Số lượng ' + ten">
+            <button type="button" aria-label="Giảm số lượng" :disabled="soLuong <= 1" @click="changeQuantity(-1)">−</button>
+            <span class="quantity">{{ soLuong }}</span>
+            <button type="button" aria-label="Tăng số lượng" :disabled="soLuong >= 99" @click="changeQuantity(1)">+</button>
+          </div>
+          <strong class="line-total">Thành tiền: {{ formatCurrency(thanhTien) }}</strong>
+          <button class="remove-button" type="button" @click="requestRemove">Xóa</button>
+        </article>
+      `
+    };
+
+    createApp({
+      data() {
+        return {
+          cartItems: [
+            { id: 1, name: 'Bút', price: 5000, quantity: 2 },
+            { id: 2, name: 'Quyển vở', price: 12000, quantity: 3 }
+          ]
+        };
+      },
+      computed: {
+        totalQuantity() {
+          return this.cartItems.reduce((total, item) => total + item.quantity, 0);
+        },
+        totalPrice() {
+          return this.cartItems.reduce(
+            (total, item) => total + item.price * item.quantity,
+            0
+          );
+        }
+      },
+      methods: {
+        updateQuantity(change) {
+          if (!change || !Number.isInteger(change.id) || !Number.isInteger(change.soLuongMoi)) {
+            return;
+          }
+          if (change.soLuongMoi < 1 || change.soLuongMoi > 99) {
+            return;
+          }
+
+          const item = this.cartItems.find((cartItem) => cartItem.id === change.id);
+          if (!item) return;
+
+          this.cartItems = this.cartItems.map((cartItem) => (
+            cartItem.id === change.id
+              ? { ...cartItem, quantity: change.soLuongMoi }
+              : cartItem
+          ));
+        },
+        removeItem(id) {
+          if (!Number.isInteger(id) || !this.cartItems.some((item) => item.id === id)) {
+            return;
+          }
+          this.cartItems = this.cartItems.filter((item) => item.id !== id);
+        },
+        formatCurrency(amount) {
+          return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+            maximumFractionDigits: 0
+          }).format(amount);
+        }
+      }
+    })
+      .component('dong-gio-hang', DongGioHang)
+      .mount('#app');
+  </script>
+</body>
+</html>
